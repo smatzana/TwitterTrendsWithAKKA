@@ -34,7 +34,7 @@ object SecondTry extends App {
 
   val fq = new FilterQuery
 
-  fq.track("Korea")
+  fq.track("real madrid", "star wars")
 
   twitterStream.addListener(listener)
   twitterStream.filter(fq)
