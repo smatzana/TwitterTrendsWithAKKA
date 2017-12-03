@@ -28,12 +28,19 @@ object TwitterTrends extends App {
   val twitter = new TwitterFactory(builder2.build).getInstance
 
   val query = new Query("Korea")
-  query.setCount(50)
+  query.setCount(1)
   val result = twitter.search(query);
 
   val foo = result.getTweets.forEach(s => println(s.getText))
- /* val oo  = new TwitterFactory(builder2.build).getInstance.getOAuthAccessToken
-  val twitterStream = new TwitterStreamFactory().getInstance(oo)
+
+  builder2 = new ConfigurationBuilder
+  builder2.setDebugEnabled(true)
+  builder2.setApplicationOnlyAuthEnabled(true)
+  builder2.setOAuthConsumerKey("3rJOl1ODzm9yZy63FACdg")
+  builder2.setOAuthConsumerSecret("5jPoQ5kQvMJFDYRNE8bQ4rHuds4xJqhvgNJM4awaE8")
+  builder2.setOAuth2TokenType(token1.getTokenType)
+  builder2.setOAuth2AccessToken(token1.getAccessToken)
+  val twitterStream = new TwitterStreamFactory(builder2.build()).getInstance()
 
   twitterStream.addListener(
     new StatusListener () {
@@ -52,5 +59,5 @@ object TwitterTrends extends App {
   )
 
   println(twitterStream.getAuthorization.isEnabled)
-  twitterStream.filter(new FilterQuery("real madrid", "star wars"))*/
+  twitterStream.filter(new FilterQuery("real madrid", "star wars"))
 }
