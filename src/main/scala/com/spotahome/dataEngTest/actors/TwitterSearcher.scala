@@ -11,8 +11,6 @@ object TwitterSearcher {
 
   def props(parserActor: ActorRef): Props = Props(new TwitterSearcher(parserActor))
 
-  def props: Props = Props[TwitterSearcher]
-
   case class StartTwitterSearch()
 
 }
