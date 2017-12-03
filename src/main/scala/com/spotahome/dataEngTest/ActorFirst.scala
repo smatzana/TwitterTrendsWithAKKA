@@ -47,8 +47,7 @@ class Printer extends Actor with ActorLogging {
 object AkkaQuickstart extends App {
   import Greeter._
 
-  // Create the 'helloAkka' actor system
-  val system: ActorSystem = ActorSystem("helloAkka")
+  val system: ActorSystem = ActorSystem("Spotahome Data Engineering Test")
 
   //#create-actors
   // Create the printer actor

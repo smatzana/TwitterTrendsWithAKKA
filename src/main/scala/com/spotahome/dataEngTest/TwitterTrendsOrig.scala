@@ -4,7 +4,7 @@ import twitter4j._
 import twitter4j.auth.{AccessToken, OAuth2Token}
 import twitter4j.conf.ConfigurationBuilder
 
-object TwitterTrends extends App {
+object TwitterTrendsOrig extends App {
 
   var builder1 = new ConfigurationBuilder
   builder1.setDebugEnabled(true)
