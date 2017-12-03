@@ -15,7 +15,7 @@ public class FirstTime {
     public static void main(String args[]) throws Exception{
         // The factory instance is re-useable and thread safe.
         Twitter twitter = TwitterFactory.getSingleton();
-        twitter.setOAuthConsumer("tI5PKAnqfen0wzyCUN9ODquRQ", "FEaxuzWWD3AA0qwXNk9YqJSEgqH93kueKJh8tMou5L38wfZHmJ");
+        twitter.setOAuthConsumer("vn3sBDdZoNaaNg8YpBOBCh9yo", "VLimdECKrB7Z0RILOSwxqYnQSeyNWQwScGpnY0ZMT0vwwxhxgx");
         RequestToken requestToken = twitter.getOAuthRequestToken();
         AccessToken accessToken = null;
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -33,8 +33,10 @@ public class FirstTime {
             } catch (TwitterException te) {
                 if(401 == te.getStatusCode()){
                     System.out.println("Unable to get the access token.");
+                    System.exit(-1);
                 }else{
                     te.printStackTrace();
+                    System.exit(-1);
                 }
             }
         }

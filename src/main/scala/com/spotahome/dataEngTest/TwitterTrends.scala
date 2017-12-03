@@ -6,40 +6,34 @@ import twitter4j.conf.ConfigurationBuilder
 
 object TwitterTrends extends App {
 
-
-  /*private val builder: ConfigurationBuilder = new ConfigurationBuilder()
-    .setApplicationOnlyAuthEnabled(true)
-
-  val twitter4j: Twitter = new TwitterFactory(builder.build).getInstance
-
-  twitter4j
-    .setOAuthConsumer("tI5PKAnqfen0wzyCUN9ODquRQ", "FEaxuzWWD3AA0qwXNk9YqJSEgqH93kueKJh8tMou5L38wfZHmJ")
-
-  val token: OAuth2Token = twitter4j.getOAuth2Token
-  val accessToken = twitter4j.getOAuthAccessToken
-
-
-  val rateLimitStatus = twitter4j.getRateLimitStatus("search")
-  val searchTweetsRateLimit = rateLimitStatus.get("/search/tweets")*/
-
-
   var builder1 = new ConfigurationBuilder
   builder1.setDebugEnabled(true)
   builder1.setApplicationOnlyAuthEnabled(true)
-  builder1.setOAuthConsumerKey("tI5PKAnqfen0wzyCUN9ODquRQ")
-  builder1.setOAuthConsumerSecret("FEaxuzWWD3AA0qwXNk9YqJSEgqH93kueKJh8tMou5L38wfZHmJ")
+  builder1.setOAuthConsumerKey("3rJOl1ODzm9yZy63FACdg")
+  builder1.setOAuthConsumerSecret("5jPoQ5kQvMJFDYRNE8bQ4rHuds4xJqhvgNJM4awaE8")
 
   val token1 = new TwitterFactory(builder1.build).getInstance.getOAuth2Token
 
-  val builder2 = new ConfigurationBuilder
+  var builder2 = new ConfigurationBuilder
   builder2.setDebugEnabled(true)
   builder2.setApplicationOnlyAuthEnabled(true)
-  builder2.setOAuthConsumerKey("tI5PKAnqfen0wzyCUN9ODquRQ")
-  builder2.setOAuthConsumerSecret("FEaxuzWWD3AA0qwXNk9YqJSEgqH93kueKJh8tMou5L38wfZHmJ")
+  builder2.setOAuthConsumerKey("3rJOl1ODzm9yZy63FACdg")
+  builder2.setOAuthConsumerSecret("5jPoQ5kQvMJFDYRNE8bQ4rHuds4xJqhvgNJM4awaE8")
   builder2.setOAuth2TokenType(token1.getTokenType)
   builder2.setOAuth2AccessToken(token1.getAccessToken)
 
-  val twitterStream = new TwitterStreamFactory(builder2.build()).getInstance()
+  import twitter4j.Twitter
+  import twitter4j.TwitterFactory
+
+  val twitter = new TwitterFactory(builder2.build).getInstance
+
+  val query = new Query("Korea")
+  query.setCount(50)
+  val result = twitter.search(query);
+
+  val foo = result.getTweets.forEach(s => println(s.getText))
+ /* val oo  = new TwitterFactory(builder2.build).getInstance.getOAuthAccessToken
+  val twitterStream = new TwitterStreamFactory().getInstance(oo)
 
   twitterStream.addListener(
     new StatusListener () {
@@ -58,5 +52,5 @@ object TwitterTrends extends App {
   )
 
   println(twitterStream.getAuthorization.isEnabled)
-  twitterStream.filter(new FilterQuery("real madrid", "star wars"))
+  twitterStream.filter(new FilterQuery("real madrid", "star wars"))*/
 }
