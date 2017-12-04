@@ -40,7 +40,8 @@ class PartialAggregator(aggregator: ActorRef) extends Actor {
 
 
     case PartialProcessed => {
-      sender ! iTMap.toSeq.sortBy(-_._2).take(10).toMap
+      println(s"Seding ${iTMap.toSeq.sortBy(-_._2).take(10)}")
+      sender ! iTMap.toSeq.sortBy(-_._2).take(10)
       iTMap.clear()
     }
 
