@@ -32,9 +32,6 @@ class PartialAggregator(aggregator: ActorRef) extends Actor {
 
   override def receive = {
 
-    case Hello => {
-      println("Got my hello")
-    }
     case HashTag(ht) =>
       iTMap.get(ht) match {
         case Some(currentCount) => iTMap += (ht -> (currentCount + 1))
@@ -43,7 +40,6 @@ class PartialAggregator(aggregator: ActorRef) extends Actor {
 
 
     case PartialProcessed => {
-      println(s"got ASKED!! ${iTMap.toSeq.sortBy(-_._2).take(10)}")
       sender ! iTMap.toSeq.sortBy(-_._2).take(10).toMap
       iTMap.clear()
     }

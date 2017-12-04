@@ -62,7 +62,7 @@ class Aggregator extends Actor {
         currentResults ++= tr.get
       })).andThen(  {
         case _ => {
-          println(s"Is this my total? ${currentResults.toSeq.sortBy(-_._2).take(10).toMap}")
+          println(s"Is this my total? ${currentResults.toSeq.sortBy(-_._2).take(10)}")
           val res = coalesceResults(currentResults.toSeq.sortBy(-_._2).take(10).toMap)
           println("COALESCED")
           res.foreach(println)

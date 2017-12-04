@@ -2,9 +2,10 @@ package com.spotahome.dataEngTest.actors
 
 import akka.actor.{Actor, ActorRef, Props}
 
-import com.spotahome.dataEngTest.actors.TwitterSearcher.StartTwitterSearch
 import twitter4j.conf.ConfigurationBuilder
 import twitter4j.{FilterQuery, TwitterStreamFactory}
+
+import com.spotahome.dataEngTest.actors.TwitterSearcher.StartTwitterSearch
 
 object TwitterSearcher {
 
@@ -25,11 +26,8 @@ class TwitterSearcher(parserActor: ActorRef) extends Actor {
       .setOAuthAccessTokenSecret("Z6LDFZyWoYEZRbyZX7tzq2vg8wbI3r4vOuAG7AaFEs7k5").build()).getInstance()
 
   def prepare = {
-    val fq = new FilterQuery
-
-    fq.track("real madrid", "star wars", "justin bieber")
     twitterStream.onStatus(parserActor ! Parser.ParseStatus(_))
-    twitterStream.filter(fq)
+    twitterStream.filter((new FilterQuery).track("real madrid", "star wars", "justin bieber"))
   }
 
   override def receive = {
