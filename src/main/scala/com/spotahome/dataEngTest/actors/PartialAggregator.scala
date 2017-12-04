@@ -1,11 +1,12 @@
 package com.spotahome.dataEngTest.actors
 
+import scala.collection.mutable.HashMap
+
 import akka.actor.{Actor, ActorRef, Props}
 import akka.routing.ConsistentHashingRouter.ConsistentHashMapping
+
 import com.spotahome.dataEngTest.actors.Aggregator.PartialProcessed
 import com.spotahome.dataEngTest.actors.PartialAggregator.{HashTag, Hello, RegisterWithAggregator}
-
-import scala.collection.mutable.HashMap
 
 object PartialAggregator {
 
@@ -43,7 +44,7 @@ class PartialAggregator(aggregator: ActorRef) extends Actor {
 
     case PartialProcessed => {
       println(s"got ASKED!! ${iTMap.toSeq.sortBy(-_._2).take(10)}")
-      sender ! iTMap.toSeq.sortBy(-_._2).take(10)
+      sender ! iTMap.toSeq.sortBy(-_._2).take(10).toMap
       iTMap.clear()
     }
 

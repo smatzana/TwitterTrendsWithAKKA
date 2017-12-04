@@ -1,11 +1,12 @@
 package com.spotahome.dataEngTest
 
-import akka.actor.ActorSystem
-import akka.routing._
-import com.spotahome.dataEngTest.actors._
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+
+import akka.actor.ActorSystem
+import akka.routing._
+
+import com.spotahome.dataEngTest.actors._
 
 object TwitterTrends extends App {
 
@@ -17,7 +18,7 @@ object TwitterTrends extends App {
   val aggregator = system.actorOf(Aggregator.props, name = "aggregator")
 
   val partialAggregator =
-    system.actorOf(ConsistentHashingPool(1, hashMapping = PartialAggregator.hashMapping).
+    system.actorOf(ConsistentHashingPool(3, hashMapping = PartialAggregator.hashMapping).
       props(PartialAggregator.props(aggregator)), name = "partialAggregator")
 
   val parserRouter =

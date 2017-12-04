@@ -1,6 +1,7 @@
 package com.spotahome.dataEngTest.actors
 
 import akka.actor.{Actor, ActorRef, Props}
+
 import com.spotahome.dataEngTest.actors.Parser.ParseStatus
 import com.spotahome.dataEngTest.actors.PartialAggregator.HashTag
 import twitter4j.Status
