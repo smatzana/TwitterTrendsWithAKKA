@@ -63,9 +63,9 @@ class Aggregator extends Actor {
   def prettyPrint(results: Seq[(String, Int, String)]) = {
     if (results.nonEmpty) {
       val time = LocalDateTime.now()
-      println(s"Tweets from ${time.minus(10, ChronoUnit.SECONDS).format(dateFormat)} to ${time.format(dateFormat)}}")
+      println(s"Tweets from ${time.minus(10, ChronoUnit.SECONDS).format(dateFormat)} to ${time.format(dateFormat)}")
       println("--------------------------------------------------------------------")
-      results.foreach(println)
+      results.foreach(r => println(f"${results.indexOf(r) + 1}%3s | ${r._1}%-40s | ${r._2}%4s | ${r._3}"))
       println("--------------------------------------------------------------------")
     }
   }
