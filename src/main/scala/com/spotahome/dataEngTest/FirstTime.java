@@ -3,7 +3,6 @@ package com.spotahome.dataEngTest;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;

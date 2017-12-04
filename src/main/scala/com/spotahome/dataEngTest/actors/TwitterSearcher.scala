@@ -1,11 +1,9 @@
 package com.spotahome.dataEngTest.actors
 
 import akka.actor.{Actor, ActorRef, Props}
-import com.spotahome.dataEngTest.Greeter
 import com.spotahome.dataEngTest.actors.TwitterSearcher.StartTwitterSearch
 import twitter4j.conf.ConfigurationBuilder
-import twitter4j.util.function.Consumer
-import twitter4j.{FilterQuery, Status, TwitterStreamFactory}
+import twitter4j.{FilterQuery, TwitterStreamFactory}
 
 object TwitterSearcher {
 

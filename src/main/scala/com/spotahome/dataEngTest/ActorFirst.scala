@@ -1,6 +1,6 @@
 package com.spotahome.dataEngTest
 
-import akka.actor.{ Actor, ActorLogging, ActorRef, ActorSystem, Props }
+import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
 
 object Greeter {
   //#greeter-messages

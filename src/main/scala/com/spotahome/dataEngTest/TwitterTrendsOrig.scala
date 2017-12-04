@@ -1,7 +1,6 @@
 package com.spotahome.dataEngTest
 
 import twitter4j._
-import twitter4j.auth.{AccessToken, OAuth2Token}
 import twitter4j.conf.ConfigurationBuilder
 
 object TwitterTrendsOrig extends App {
@@ -22,7 +21,6 @@ object TwitterTrendsOrig extends App {
   builder2.setOAuth2TokenType(token1.getTokenType)
   builder2.setOAuth2AccessToken(token1.getAccessToken)
 
-  import twitter4j.Twitter
   import twitter4j.TwitterFactory
 
   val twitter = new TwitterFactory(builder2.build).getInstance

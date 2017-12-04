@@ -1,28 +1,30 @@
 package com.spotahome.dataEngTest
 
-import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
-import akka.actor.{ActorRef, ActorSelection, ActorSystem, Props}
+import akka.actor.ActorSystem
 import akka.routing._
-import com.spotahome.dataEngTest.actors.{Parser, PartialAggregator, TwitterSearcher}
+import com.spotahome.dataEngTest.actors._
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 object TwitterTrends extends App {
 
   val SystemName = "Spotahome-Data-Engineering-Test"
-  val SendPartialsSignal = "send partials"
+  val AskPartialsSignal = "ask partials"
 
   val system: ActorSystem = ActorSystem(SystemName)
 
+  val aggregator = system.actorOf(Aggregator.props, name = "aggregator")
+
   val partialAggregator =
     system.actorOf(ConsistentHashingPool(1, hashMapping = PartialAggregator.hashMapping).
-      props(Props[PartialAggregator]), name = "partialAggregator")
+      props(PartialAggregator.props(aggregator)), name = "partialAggregator")
 
   val parserRouter =
     system.actorOf(SmallestMailboxPool(5).props(Parser.props(partialAggregator)), "parserRouter")
 
   val searcher = system.actorOf(TwitterSearcher.props(parserRouter), "twitterSearcher")
 
-  system.scheduler.schedule(10 seconds, 10 seconds, partialAggregator, Broadcast(SendPartialsSignal))
-  //router ! Broadcast("Watch out for Davy Jones' locker")
+  system.scheduler.schedule(10 seconds, 10 seconds, aggregator, AskPartialsSignal)
   searcher ! TwitterSearcher.StartTwitterSearch
 }

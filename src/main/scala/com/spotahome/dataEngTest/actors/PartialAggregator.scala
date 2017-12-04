@@ -1,51 +1,51 @@
 package com.spotahome.dataEngTest.actors
 
-import akka.actor.{Actor, Props}
-import akka.routing.Broadcast
+import akka.actor.{Actor, ActorRef, Props}
 import akka.routing.ConsistentHashingRouter.ConsistentHashMapping
-import com.spotahome.dataEngTest.actors.PartialAggregator.HashTag
+import com.spotahome.dataEngTest.actors.Aggregator.PartialProcessed
+import com.spotahome.dataEngTest.actors.PartialAggregator.{HashTag, Hello, RegisterWithAggregator}
 
-import scala.collection.immutable.{HashMap, TreeMap}
-import scala.util.Success
+import scala.collection.mutable.HashMap
 
 object PartialAggregator {
 
-  def props: Props = Props[PartialAggregator]
+  def props(aggregator: ActorRef): Props = Props(new PartialAggregator(aggregator))
 
   case class HashTag(s: String)
+  case class RegisterWithAggregator()
+  case class Hello()
 
   def hashMapping: ConsistentHashMapping = {
     case HashTag(key) => key.charAt(1).toString.toLowerCase
   }
 
-
 }
 
-class PartialAggregator extends Actor {
-
-  import com.spotahome.dataEngTest.TwitterTrends.SendPartialsSignal
+class PartialAggregator(aggregator: ActorRef) extends Actor {
 
   type SortedMapKey = (String, Int)
 
-  val tMap = TreeMap[Int, String]()
-  var iTMap = HashMap[String, Int]()
+  val iTMap = HashMap[String, Int]()
 
-  implicit val topHashTagsByCountOrdering: Ordering[(String, Int)] = Ordering.by[SortedMapKey, Int]( _._2)
+  aggregator ! RegisterWithAggregator()
 
   override def receive = {
 
-    case HashTag(ht) => {
-      println("Agg: Got the " + ht + " on actor "  + self )
-      iTMap = iTMap.get(ht) match {
-        case Some(currentCount) => iTMap + (ht -> (currentCount + 1))
-        case None => iTMap + (ht -> 1)
+    case Hello => {
+      println("Got my hello")
+    }
+    case HashTag(ht) =>
+      iTMap.get(ht) match {
+        case Some(currentCount) => iTMap += (ht -> (currentCount + 1))
+        case None => iTMap += (ht -> 1)
       }
+
+
+    case PartialProcessed => {
+      println(s"got ASKED!! ${iTMap.toSeq.sortBy(-_._2).take(10)}")
+      sender ! iTMap.toSeq.sortBy(-_._2).take(10)
+      iTMap.clear()
     }
 
-    case SendPartialsSignal => {
-      val t2: Map[SortedMapKey, Int] = TreeMap[SortedMapKey, Int]() ++ (for ((k, v) <- iTMap ) yield ((k,v), v))
-      t2.foreach(t => println(s"${this} ${t}") )
-    }
-    case f => println("AG FAIL!!!"  + f)
   }
 }
