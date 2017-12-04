@@ -6,7 +6,7 @@ import akka.actor.{Actor, ActorRef, Props}
 import akka.routing.ConsistentHashingRouter.ConsistentHashMapping
 
 import com.spotahome.dataEngTest.actors.Aggregator.PartialProcessed
-import com.spotahome.dataEngTest.actors.PartialAggregator.{HashTag, Hello, RegisterWithAggregator}
+import com.spotahome.dataEngTest.actors.PartialAggregator.{HashTag, RegisterWithAggregator}
 
 object PartialAggregator {
 
@@ -40,7 +40,6 @@ class PartialAggregator(aggregator: ActorRef) extends Actor {
 
 
     case PartialProcessed => {
-      println(s"Seding ${iTMap.toSeq.sortBy(-_._2).take(10)}")
       sender ! iTMap.toSeq.sortBy(-_._2).take(10)
       iTMap.clear()
     }

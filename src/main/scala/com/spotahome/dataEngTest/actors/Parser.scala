@@ -18,7 +18,7 @@ class Parser(partialAggregator: ActorRef)  extends Actor {
   override def receive =  {
 
     case ParseStatus(s) =>
-      "#[\\S]+".r
+      "(?<!\\w)#\\w+".r
         .findAllIn(s.getText)
         .foreach(s => partialAggregator ! HashTag(s.toLowerCase()))
 
