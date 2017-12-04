@@ -1,15 +1,20 @@
 package com.spotahome.dataEngTest
 
-import akka.actor.{ActorRef, ActorSystem, Props}
-import akka.routing.{BalancingPool, ConsistentHashingPool, RoundRobinPool, SmallestMailboxPool}
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+import akka.actor.{ActorRef, ActorSelection, ActorSystem, Props}
+import akka.routing._
 import com.spotahome.dataEngTest.actors.{Parser, PartialAggregator, TwitterSearcher}
 
 object TwitterTrends extends App {
 
-  val system: ActorSystem = ActorSystem("Spotahome-Data-Engineering-Test")
+  val SystemName = "Spotahome-Data-Engineering-Test"
+  val SendPartialsSignal = "send partials"
+
+  val system: ActorSystem = ActorSystem(SystemName)
 
   val partialAggregator =
-    system.actorOf(ConsistentHashingPool(10, hashMapping = PartialAggregator.hashMapping).
+    system.actorOf(ConsistentHashingPool(1, hashMapping = PartialAggregator.hashMapping).
       props(Props[PartialAggregator]), name = "partialAggregator")
 
   val parserRouter =
@@ -17,5 +22,7 @@ object TwitterTrends extends App {
 
   val searcher = system.actorOf(TwitterSearcher.props(parserRouter), "twitterSearcher")
 
+  system.scheduler.schedule(10 seconds, 10 seconds, partialAggregator, Broadcast(SendPartialsSignal))
+  //router ! Broadcast("Watch out for Davy Jones' locker")
   searcher ! TwitterSearcher.StartTwitterSearch
 }

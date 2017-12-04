@@ -12,13 +12,14 @@ object Parser {
 }
 
 class Parser(partialAggregator: ActorRef)  extends Actor {
+
   override def receive =  {
-    case ParseStatus(s) => {
-      val hashTags = "#[\\S]+".r.findAllIn(s.getText)
-      hashTags.foreach(print)
-      println("-----")
-      hashTags.foreach(partialAggregator ! HashTag(_))
-    }
+
+    case ParseStatus(s) =>
+      "#[\\S]+".r
+        .findAllIn(s.getText)
+        .foreach(s => partialAggregator ! HashTag(s.toLowerCase()))
+
     case _ => println("Fails")
   }
 }
