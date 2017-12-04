@@ -19,7 +19,7 @@ import akka.util.Timeout
 
 import com.spotahome.dataEngTest.TwitterTrends.AskPartialsSignal
 import com.spotahome.dataEngTest.actors.Aggregator.PartialProcessed
-import com.spotahome.dataEngTest.actors.PartialAggregator.RegisterWithAggregator
+import com.spotahome.dataEngTest.actors.PartialAggregator.{DeregisterWithAggregator, RegisterWithAggregator}
 import com.spotahome.dataEngTest.utils.Utilities.dateFormat
 
 object Aggregator {
@@ -64,16 +64,19 @@ class Aggregator extends Actor {
     if (results.nonEmpty) {
       val time = LocalDateTime.now()
       println(s"Tweets from ${time.minus(10, ChronoUnit.SECONDS).format(dateFormat)} to ${time.format(dateFormat)}}")
+      println("--------------------------------------------------------------------")
       results.foreach(println)
-      println("----------------------------------")
+      println("--------------------------------------------------------------------")
     }
   }
 
   override def receive = {
 
-    case RegisterWithAggregator() =>
+    case RegisterWithAggregator =>
       partialAggregators += sender()
 
+    case DeregisterWithAggregator =>
+      partialAggregators -= sender()
 
     case AskPartialsSignal => {
       var currentResults = ArrayBuffer[(String, Int)]()

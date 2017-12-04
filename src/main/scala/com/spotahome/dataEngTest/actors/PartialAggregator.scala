@@ -6,7 +6,7 @@ import akka.actor.{Actor, ActorRef, Props}
 import akka.routing.ConsistentHashingRouter.ConsistentHashMapping
 
 import com.spotahome.dataEngTest.actors.Aggregator.PartialProcessed
-import com.spotahome.dataEngTest.actors.PartialAggregator.{HashTag, RegisterWithAggregator}
+import com.spotahome.dataEngTest.actors.PartialAggregator.{DeregisterWithAggregator, HashTag, RegisterWithAggregator}
 
 object PartialAggregator {
 
@@ -14,6 +14,7 @@ object PartialAggregator {
 
   case class HashTag(s: String)
   case class RegisterWithAggregator()
+  case class DeregisterWithAggregator()
   case class Hello()
 
   def hashMapping: ConsistentHashMapping = {
@@ -28,7 +29,15 @@ class PartialAggregator(aggregator: ActorRef) extends Actor {
 
   val iTMap = HashMap[String, Int]()
 
-  aggregator ! RegisterWithAggregator()
+  override def preStart() = {
+    super.preStart()
+    aggregator ! RegisterWithAggregator
+  }
+
+  override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
+    super.preStart()
+    aggregator ! DeregisterWithAggregator
+  }
 
   override def receive = {
 

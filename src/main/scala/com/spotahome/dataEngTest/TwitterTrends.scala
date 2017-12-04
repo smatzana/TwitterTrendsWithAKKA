@@ -18,14 +18,15 @@ object TwitterTrends extends App {
   val aggregator = system.actorOf(Aggregator.props, name = "aggregator")
 
   val partialAggregator =
-    system.actorOf(ConsistentHashingPool(3, hashMapping = PartialAggregator.hashMapping).
+    system.actorOf(ConsistentHashingPool(30, hashMapping = PartialAggregator.hashMapping).
       props(PartialAggregator.props(aggregator)), name = "partialAggregator")
 
   val parserRouter =
-    system.actorOf(SmallestMailboxPool(5).props(Parser.props(partialAggregator)), "parserRouter")
+    system.actorOf(SmallestMailboxPool(10).props(Parser.props(partialAggregator)), "parserRouter")
 
   val searcher = system.actorOf(TwitterSearcher.props(parserRouter), "twitterSearcher")
 
   system.scheduler.schedule(10 seconds, 10 seconds, aggregator, AskPartialsSignal)
+
   searcher ! TwitterSearcher.StartTwitterSearch
 }
