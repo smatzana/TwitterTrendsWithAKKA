@@ -45,19 +45,20 @@ class Aggregator extends Actor {
       partialAggregators -= sender()
 
     case AskForPartials => {
-      var currentResults = ArrayBuffer[(String, Int)]()
       val setOfFutures = for (a <- partialAggregators) yield ask(a, PartialProcessed).mapTo[Seq[(String, Int)]]
-      val futureOfSets = Future.sequence(setOfFutures.map(liftToFutureTry)).map(_.filter(_.isSuccess))
-      futureOfSets.map((set: mutable.Set[Try[Seq[(String, Int)]]]) => set.foreach(tr => {
-        currentResults ++= tr.get
-      })).andThen {
-        case _ => {
-          val (coalesced, oldResults) = Coalesce.coalesceResults(currentResults.sortBy(-_._2).take(10), previousResults)
-          previousResults.clear()
-          previousResults ++= oldResults
-          coalesced.prettyPrint.foreach(println)
+      val futureOfSets: Future[mutable.HashSet[Try[Seq[(String, Int)]]]] = Future.sequence(setOfFutures.map(liftToFutureTry)).map(_.filter(_.isSuccess))
+
+      futureOfSets
+        .map(_.map(t => t.get))
+        .andThen {
+          case Success(e) => {
+            val currentResults = e.foldLeft(ArrayBuffer[(String, Int)]())((agg, s) => agg ++= s)
+            val (coalesced, oldResults) = Coalesce.coalesceResults(currentResults.sortBy(-_._2).take(10), previousResults)
+            previousResults.clear()
+            previousResults ++= oldResults
+            coalesced.prettyPrint.foreach(println)
+          }
         }
-      }
 
     }
   }
