@@ -7,9 +7,16 @@ import akka.actor.ActorSystem
 import akka.routing._
 
 import com.spotahome.dataEngTest.actors._
+import com.spotahome.dataEngTest.common.EnvInjector
 
 object TwitterTrends extends App {
 
+  val envVars  = EnvInjector.getAllEnvVars.map(
+     _ match {
+       case (ev, None) => throw new RuntimeException(s"Missing env var ${ev}")
+       case (ev, Some(f)) => (ev, f)
+     }
+  )
   val SystemName = "Spotahome-Data-Engineering-Test"
   val AskForPartials = "ask partials"
 
@@ -24,7 +31,7 @@ object TwitterTrends extends App {
   val parserRouter =
     system.actorOf(SmallestMailboxPool(10).props(Parser.props(partialAggregator)), "parserRouter")
 
-  val searcher = system.actorOf(TwitterSearcher.props(parserRouter), "twitterSearcher")
+  val searcher = system.actorOf(TwitterSearcher.props(parserRouter, envVars), "twitterSearcher")
 
   system.scheduler.schedule(10 seconds, 10 seconds, aggregator, AskForPartials)
 

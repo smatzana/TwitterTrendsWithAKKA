@@ -6,26 +6,27 @@ import twitter4j.conf.ConfigurationBuilder
 import twitter4j.{FilterQuery, TwitterStreamFactory}
 
 import com.spotahome.dataEngTest.actors.TwitterSearcher.StartTwitterSearch
+import com.spotahome.dataEngTest.common.EnvInjector
 
 object TwitterSearcher {
 
-  def props(parserActor: ActorRef): Props = Props(new TwitterSearcher(parserActor))
+  def props(parserRouter: ActorRef, envVars: Map[String, String]) = Props(new TwitterSearcher(parserRouter, envVars))
 
   case class StartTwitterSearch()
 
 }
 
-class TwitterSearcher(parserActor: ActorRef) extends Actor {
+class TwitterSearcher(parserActor: ActorRef, envVars: Map[String, String]) extends Actor {
 
-  var twitterStream = new TwitterStreamFactory(
+  private val twitterStream = new TwitterStreamFactory(
     new ConfigurationBuilder()
       .setDebugEnabled(true)
-      .setOAuthConsumerKey("UAROc811Qme3SSnipnEcNplth")
-      .setOAuthConsumerSecret("DIfRdcJtFaEMEDVmbtjLvcfF82WcHoB2yLerbzUKT6NyXMqXhm")
-      .setOAuthAccessToken("937335837146140673-xDou2Ehe5xtTFTF9Ah8V5NxDx06Vtco")
-      .setOAuthAccessTokenSecret("Z6LDFZyWoYEZRbyZX7tzq2vg8wbI3r4vOuAG7AaFEs7k5").build()).getInstance()
+      .setOAuthConsumerKey(envVars.get(EnvInjector.csKey).get)
+      .setOAuthConsumerSecret(envVars.get(EnvInjector.csSecret).get)
+      .setOAuthAccessToken(envVars.get(EnvInjector.accessToken).get)
+      .setOAuthAccessTokenSecret(envVars.get(EnvInjector.accessTokenSecret).get).build()).getInstance()
 
-  def prepare = {
+  private def prepare = {
     twitterStream.onStatus(parserActor ! Parser.ParseStatus(_))
     twitterStream.onException(_ => context.system.terminate())
     twitterStream.filter((new FilterQuery).track("real madrid", "star wars", "justin bieber"))
