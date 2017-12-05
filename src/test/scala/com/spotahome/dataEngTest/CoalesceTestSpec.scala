@@ -2,8 +2,7 @@ package com.spotahome.dataEngTest
 
 import scala.collection.mutable.ArrayBuffer
 
-import com.spotahome.dataEngTest.common.Coalesce
-import com.spotahome.dataEngTest.common.Coalesce.{Down, New, Same, Up}
+import com.spotahome.dataEngTest.common._
 import org.scalatest._
 
 class CoalesceTestSpec extends FlatSpec with Matchers {

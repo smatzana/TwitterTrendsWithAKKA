@@ -4,8 +4,6 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
-import com.spotahome.dataEngTest.common.Coalesce.Position
-
 object TrendsPrettyPrint {
 
   implicit class PrettyPrint(results: Seq[(String, Int, Position)]) {
