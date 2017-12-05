@@ -21,10 +21,10 @@ class TwitterSearcher(parserActor: ActorRef, envVars: Map[String, String]) exten
   private val twitterStream = new TwitterStreamFactory(
     new ConfigurationBuilder()
       .setDebugEnabled(true)
-      .setOAuthConsumerKey(envVars.get(EnvInjector.csKey).get)
-      .setOAuthConsumerSecret(envVars.get(EnvInjector.csSecret).get)
-      .setOAuthAccessToken(envVars.get(EnvInjector.accessToken).get)
-      .setOAuthAccessTokenSecret(envVars.get(EnvInjector.accessTokenSecret).get).build()).getInstance()
+      .setOAuthConsumerKey(envVars.get(EnvInjector.CsKey).get)
+      .setOAuthConsumerSecret(envVars.get(EnvInjector.CsSecret).get)
+      .setOAuthAccessToken(envVars.get(EnvInjector.AccessToken).get)
+      .setOAuthAccessTokenSecret(envVars.get(EnvInjector.AccessTokenSecret).get).build()).getInstance()
 
   private def prepare = {
     twitterStream.onStatus(parserActor ! Parser.ParseStatus(_))
