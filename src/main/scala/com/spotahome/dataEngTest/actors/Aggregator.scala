@@ -1,10 +1,8 @@
 package com.spotahome.dataEngTest.actors
 
-import java.text.SimpleDateFormat
-import java.time.{LocalDate, LocalDateTime}
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.Calendar
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -17,10 +15,9 @@ import akka.actor.{Actor, ActorRef, Props}
 import akka.pattern.ask
 import akka.util.Timeout
 
-import com.spotahome.dataEngTest.TwitterTrends.AskPartialsSignal
+import com.spotahome.dataEngTest.TwitterTrends.AskForPartials
 import com.spotahome.dataEngTest.actors.Aggregator.PartialProcessed
 import com.spotahome.dataEngTest.actors.PartialAggregator.{DeregisterWithAggregator, RegisterWithAggregator}
-import com.spotahome.dataEngTest.utils.Utilities.dateFormat
 
 object Aggregator {
 
@@ -31,20 +28,15 @@ object Aggregator {
 
 class Aggregator extends Actor {
 
-  implicit val timeout = Timeout(200 milliseconds)
-
   private val partialAggregators = mutable.HashSet[ActorRef]()
   private val previousResults = ArrayBuffer[(String, Int)]()
   private val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
-  private def futureToFutureTry[T](f: Future[T]): Future[Try[T]] = {
-      f.map(Success(_)).recover({case e => Failure(e)})
-  }
 
-  def zipSeqWithIndex(s: Iterable[(String, Int)]) =
+  private def zipSeqWithIndex(s: Iterable[(String, Int)]) =
     s.map(t => t._1).zipWithIndex.toSeq.sortBy(_._2)
 
-  def coalesceResults(currentResults : Iterable[(String, Int)]) = {
+  private def coalesceResults(currentResults : Iterable[(String, Int)]) = {
     val previousIndices = zipSeqWithIndex(previousResults).toMap
     previousResults.clear()
     previousResults ++= currentResults
@@ -60,7 +52,7 @@ class Aggregator extends Actor {
     }).sortBy(- _._2)
   }
 
-  def prettyPrint(results: Seq[(String, Int, String)]) = {
+  private def prettyPrint(results: Seq[(String, Int, String)]) = {
     if (results.nonEmpty) {
       val time = LocalDateTime.now()
       println(s"Tweets from ${time.minus(10, ChronoUnit.SECONDS).format(dateFormat)} to ${time.format(dateFormat)}")
@@ -70,6 +62,11 @@ class Aggregator extends Actor {
     }
   }
 
+  private def liftToFutureTry[T](f: Future[T]): Future[Try[T]] =
+    f.map(Success(_)).recover({case e => Failure(e)})
+
+  implicit val timeout = Timeout(200 milliseconds)
+
   override def receive = {
 
     case RegisterWithAggregator =>
@@ -78,15 +75,15 @@ class Aggregator extends Actor {
     case DeregisterWithAggregator =>
       partialAggregators -= sender()
 
-    case AskPartialsSignal => {
+    case AskForPartials => {
       var currentResults = ArrayBuffer[(String, Int)]()
       val setOfFutures = for (a <- partialAggregators) yield ask(a, PartialProcessed).mapTo[Seq[(String, Int)]]
-      val futureOfSets = Future.sequence(setOfFutures.map(futureToFutureTry)).map( _.filter(_.isSuccess))
+      val futureOfSets = Future.sequence(setOfFutures.map(liftToFutureTry)).map( _.filter(_.isSuccess))
       futureOfSets.map((set: mutable.Set[Try[Seq[(String, Int)]]]) => set.foreach(tr => {
         currentResults ++= tr.get
-      })).andThen(  {
+      })).andThen {
         case _ => prettyPrint(coalesceResults(currentResults.sortBy(- _._2).take(10)))
-      })
+      }
 
     }
   }

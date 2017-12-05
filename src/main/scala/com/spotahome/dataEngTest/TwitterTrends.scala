@@ -11,7 +11,7 @@ import com.spotahome.dataEngTest.actors._
 object TwitterTrends extends App {
 
   val SystemName = "Spotahome-Data-Engineering-Test"
-  val AskPartialsSignal = "ask partials"
+  val AskForPartials = "ask partials"
 
   val system: ActorSystem = ActorSystem(SystemName)
 
@@ -26,7 +26,7 @@ object TwitterTrends extends App {
 
   val searcher = system.actorOf(TwitterSearcher.props(parserRouter), "twitterSearcher")
 
-  system.scheduler.schedule(10 seconds, 10 seconds, aggregator, AskPartialsSignal)
+  system.scheduler.schedule(10 seconds, 10 seconds, aggregator, AskForPartials)
 
   searcher ! TwitterSearcher.StartTwitterSearch
 }
