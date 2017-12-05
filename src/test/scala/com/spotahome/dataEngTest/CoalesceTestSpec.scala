@@ -3,6 +3,7 @@ package com.spotahome.dataEngTest
 import scala.collection.mutable.ArrayBuffer
 
 import com.spotahome.dataEngTest.common.Coalesce
+import com.spotahome.dataEngTest.common.Coalesce.{Down, New, Same, Up}
 import org.scalatest._
 
 class CoalesceTestSpec extends FlatSpec with Matchers {
@@ -15,7 +16,7 @@ class CoalesceTestSpec extends FlatSpec with Matchers {
 
     val (trends, previous) = Coalesce.coalesceResults(cr1, previousResults)
 
-    trends.forall(_._3 == "new") should be(true)
+    trends.forall(_._3 == New()) should be(true)
 
     previousResults ++= previous
 
@@ -25,13 +26,13 @@ class CoalesceTestSpec extends FlatSpec with Matchers {
     val (trends2, _) = Coalesce.coalesceResults(cr2, previousResults)
 
     trends2(0)._1 should be("#mtvhottest")
-    trends2(0)._3 should include("\u2191 (3 positions)")
+    trends2(0)._3 should be(Up(3))
     trends2(1)._1 should be("#starwars")
-    trends2(1)._3 should include("\u2193 (1 positions)")
+    trends2(1)._3 should be(Down(1))
     trends2(2)._1 should be("#scifi")
-    trends2(2)._3 should include("new")
+    trends2(2)._3 should be(New())
     trends2(6)._1 should be("#jedi")
-    trends2(6)._3 should include("=")
+    trends2(6)._3 should be(Same())
   }
 
 }
