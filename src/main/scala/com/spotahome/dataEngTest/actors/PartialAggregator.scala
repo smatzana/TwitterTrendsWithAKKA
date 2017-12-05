@@ -27,7 +27,7 @@ class PartialAggregator(aggregator: ActorRef) extends Actor {
 
   type SortedMapKey = (String, Int)
 
-  val iTMap = HashMap[String, Int]()
+  val temporaryPartialAggregate = HashMap[String, Int]()
 
   override def preStart() = {
     super.preStart()
@@ -42,15 +42,15 @@ class PartialAggregator(aggregator: ActorRef) extends Actor {
   override def receive = {
 
     case HashTag(ht) =>
-      iTMap.get(ht) match {
-        case Some(currentCount) => iTMap += (ht -> (currentCount + 1))
-        case None => iTMap += (ht -> 1)
+      temporaryPartialAggregate.get(ht) match {
+        case Some(currentCount) => temporaryPartialAggregate += (ht -> (currentCount + 1))
+        case None => temporaryPartialAggregate += (ht -> 1)
       }
 
 
     case PartialProcessed => {
-      sender ! iTMap.toSeq.sortBy(-_._2).take(10)
-      iTMap.clear()
+      sender ! temporaryPartialAggregate.toSeq.sortBy(-_._2).take(10)
+      temporaryPartialAggregate.clear()
     }
 
   }

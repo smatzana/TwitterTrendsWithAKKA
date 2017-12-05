@@ -27,6 +27,7 @@ class TwitterSearcher(parserActor: ActorRef) extends Actor {
 
   def prepare = {
     twitterStream.onStatus(parserActor ! Parser.ParseStatus(_))
+    twitterStream.onException(_ => context.system.terminate())
     twitterStream.filter((new FilterQuery).track("real madrid", "star wars", "justin bieber"))
   }
 
