@@ -20,6 +20,9 @@ class Parser(partialAggregator: ActorRef)  extends Actor {
     case ParseStatus(s) =>
       "(?<!\\w)#\\w+".r
         .findAllIn(s.getText)
+        .foreach(h => println(s"Found ${h}"))
+      "(?<!\\w)#\\w+".r
+        .findAllIn(s.getText)
         .foreach(s => partialAggregator ! HashTag(s.toLowerCase()))
 
     case _ =>

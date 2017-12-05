@@ -14,12 +14,16 @@ import akka.util.Timeout
 import com.spotahome.dataEngTest.TwitterTrends.AskForPartials
 import com.spotahome.dataEngTest.actors.Aggregator.PartialProcessed
 import com.spotahome.dataEngTest.actors.PartialAggregator.{DeregisterWithAggregator, RegisterWithAggregator}
+import com.spotahome.dataEngTest.common.Coalesce
+import com.spotahome.dataEngTest.common.TrendsPrettyPrint.PrettyPrint
+
 
 object Aggregator {
 
   def props = Props[Aggregator]
 
   case class PartialProcessed()
+
 }
 
 class Aggregator extends Actor {
@@ -27,32 +31,10 @@ class Aggregator extends Actor {
   private val partialAggregators = mutable.HashSet[ActorRef]()
   private val previousResults = ArrayBuffer[(String, Int)]()
 
-  private def zipSeqWithIndex(s: Iterable[(String, Int)]) =
-    s.map(t => t._1).zipWithIndex.toSeq.sortBy(_._2)
-
-  private def coalesceResults(currentResults : Iterable[(String, Int)]) = {
-    val previousIndices = zipSeqWithIndex(previousResults).toMap
-    previousResults.clear()
-    previousResults ++= currentResults
-
-    val j: Map[String, Int] = currentResults.map(t => t._1 -> t._2).toMap
-    (for ( (k, i) <- zipSeqWithIndex(currentResults)) yield {
-      previousIndices.get(k) match {
-        case Some(index) if index < i => (k, j.get(k).get, s"\u2193 (${Math.abs(i - index)} positions)")
-        case Some(index) if index > i => (k, j.get(k).get, s"\u2191 (${Math.abs(i - index)} positions)")
-        case Some(_)  => (k, j.get(k).get, s"=")
-        case None => (k, j.get(k).get, "new")
-      }
-    }).sortBy(- _._2)
-  }
-
-
   private def liftToFutureTry[T](f: Future[T]): Future[Try[T]] =
-    f.map(Success(_)).recover({case e => Failure(e)})
+    f.map(Success(_)).recover({ case e => Failure(e) })
 
   implicit val timeout = Timeout(200 milliseconds)
-
-  import com.spotahome.dataEngTest.common.TrendsPrettyPrint.PrettyPrint
 
   override def receive = {
 
@@ -65,11 +47,16 @@ class Aggregator extends Actor {
     case AskForPartials => {
       var currentResults = ArrayBuffer[(String, Int)]()
       val setOfFutures = for (a <- partialAggregators) yield ask(a, PartialProcessed).mapTo[Seq[(String, Int)]]
-      val futureOfSets = Future.sequence(setOfFutures.map(liftToFutureTry)).map( _.filter(_.isSuccess))
+      val futureOfSets = Future.sequence(setOfFutures.map(liftToFutureTry)).map(_.filter(_.isSuccess))
       futureOfSets.map((set: mutable.Set[Try[Seq[(String, Int)]]]) => set.foreach(tr => {
         currentResults ++= tr.get
       })).andThen {
-        case _ => coalesceResults(currentResults.sortBy(- _._2).take(10)).prettyPrint.foreach(println)
+        case _ => {
+          val (coalesced, oldResults) = Coalesce.coalesceResults(currentResults.sortBy(-_._2).take(10), previousResults)
+          previousResults.clear()
+          previousResults ++= oldResults
+          coalesced.prettyPrint.foreach(println)
+        }
       }
 
     }
