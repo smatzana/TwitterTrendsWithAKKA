@@ -1,9 +1,5 @@
 package com.spotahome.dataEngTest.actors
 
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
-
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -30,8 +26,6 @@ class Aggregator extends Actor {
 
   private val partialAggregators = mutable.HashSet[ActorRef]()
   private val previousResults = ArrayBuffer[(String, Int)]()
-  private val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-
 
   private def zipSeqWithIndex(s: Iterable[(String, Int)]) =
     s.map(t => t._1).zipWithIndex.toSeq.sortBy(_._2)
@@ -52,20 +46,13 @@ class Aggregator extends Actor {
     }).sortBy(- _._2)
   }
 
-  private def prettyPrint(results: Seq[(String, Int, String)]) = {
-    if (results.nonEmpty) {
-      val time = LocalDateTime.now()
-      println(s"Tweets from ${time.minus(10, ChronoUnit.SECONDS).format(dateFormat)} to ${time.format(dateFormat)}")
-      println("--------------------------------------------------------------------")
-      results.foreach(r => println(f"${results.indexOf(r) + 1}%3s | ${r._1}%-40s | ${r._2}%4s | ${r._3}"))
-      println("--------------------------------------------------------------------")
-    }
-  }
 
   private def liftToFutureTry[T](f: Future[T]): Future[Try[T]] =
     f.map(Success(_)).recover({case e => Failure(e)})
 
   implicit val timeout = Timeout(200 milliseconds)
+
+  import com.spotahome.dataEngTest.common.TrendsPrettyPrint.PrettyPrint
 
   override def receive = {
 
@@ -82,7 +69,7 @@ class Aggregator extends Actor {
       futureOfSets.map((set: mutable.Set[Try[Seq[(String, Int)]]]) => set.foreach(tr => {
         currentResults ++= tr.get
       })).andThen {
-        case _ => prettyPrint(coalesceResults(currentResults.sortBy(- _._2).take(10)))
+        case _ => coalesceResults(currentResults.sortBy(- _._2).take(10)).prettyPrint.foreach(println)
       }
 
     }

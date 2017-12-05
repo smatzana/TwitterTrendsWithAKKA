@@ -1,4 +1,4 @@
-package com.spotahome.dataEngTest.utils
+package com.spotahome.dataEngTest.common
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
