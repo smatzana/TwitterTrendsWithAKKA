@@ -26,13 +26,11 @@ class TwitterSearcher(parserActor: ActorRef, envVars: Map[String, String]) exten
       .setOAuthAccessToken(envVars.get(EnvInjector.AccessToken).get)
       .setOAuthAccessTokenSecret(envVars.get(EnvInjector.AccessTokenSecret).get).build()).getInstance()
 
-  private def prepare = {
-    twitterStream.onStatus(parserActor ! Parser.ParseStatus(_))
-    twitterStream.onException(_ => context.system.terminate())
-    twitterStream.filter((new FilterQuery).track("real madrid", "star wars", "justin bieber"))
-  }
-
   override def receive = {
-    case StartTwitterSearch => prepare
+    case StartTwitterSearch => {
+      twitterStream.onStatus(parserActor ! Parser.ParseStatus(_))
+      twitterStream.onException(_ => context.system.terminate())
+      twitterStream.filter((new FilterQuery).track("real madrid", "star wars", "justin bieber"))
+    }
   }
 }
