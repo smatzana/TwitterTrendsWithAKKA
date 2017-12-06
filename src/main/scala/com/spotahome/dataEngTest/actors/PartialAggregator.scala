@@ -23,8 +23,6 @@ object PartialAggregator {
 
 class PartialAggregator(aggregator: ActorRef) extends Actor {
 
-  type SortedMapKey = (String, Int)
-
   override def preStart() = {
     super.preStart()
     aggregator ! RegisterWithAggregator

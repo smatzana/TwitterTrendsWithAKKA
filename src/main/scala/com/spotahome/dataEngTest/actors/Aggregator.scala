@@ -53,7 +53,7 @@ class Aggregator extends Actor {
           case Success(e) => {
             val currentResults = e.foldLeft(ArrayBuffer[(String, Int)]())((agg, s) => agg ++= s)
             val (coalesced, oldResults) = Coalesce.coalesceResults(currentResults.sortBy(-_._2).take(10), previousResults)
-            coalesced.prettyPrint.foreach(println)
+            coalesced.prettyPrint
             context become processPartials(partialAggregators, oldResults)
           }
         }
