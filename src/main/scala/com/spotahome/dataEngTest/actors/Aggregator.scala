@@ -29,14 +29,15 @@ object Aggregator {
 class Aggregator extends Actor {
 
   private val partialAggregators = mutable.HashSet[ActorRef]()
-  private val previousResults = ArrayBuffer[(String, Int)]()
 
   private def liftToFutureTry[T](f: Future[T]): Future[Try[T]] =
     f.map(Success(_)).recover({ case e => Failure(e) })
 
   implicit val timeout = Timeout(200 milliseconds)
 
-  override def receive = {
+  override def receive = processPartials(List())
+
+  def processPartials(previousResults: Iterable[(String, Int)]) : Receive = {
 
     case RegisterWithAggregator =>
       partialAggregators += sender()
@@ -54,12 +55,12 @@ class Aggregator extends Actor {
           case Success(e) => {
             val currentResults = e.foldLeft(ArrayBuffer[(String, Int)]())((agg, s) => agg ++= s)
             val (coalesced, oldResults) = Coalesce.coalesceResults(currentResults.sortBy(-_._2).take(10), previousResults)
-            previousResults.clear()
-            previousResults ++= oldResults
             coalesced.prettyPrint.foreach(println)
+            context.become(processPartials(oldResults))
           }
         }
 
     }
   }
+
 }
