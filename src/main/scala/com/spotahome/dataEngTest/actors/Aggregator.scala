@@ -38,10 +38,10 @@ class Aggregator extends Actor {
   def processPartials(partialAggregators: Set[ActorRef], previousResults: Iterable[(String, Int)]) : Receive = {
 
     case RegisterWithAggregator =>
-      context.become(processPartials(partialAggregators + sender(), previousResults))
+      context become processPartials(partialAggregators + sender(), previousResults)
 
     case DeregisterWithAggregator =>
-      context.become(processPartials(partialAggregators  - sender(), previousResults))
+      context become processPartials(partialAggregators  - sender(), previousResults)
 
     case AskForPartials => {
       val setOfFutures = for (a <- partialAggregators) yield ask(a, PartialProcessed).mapTo[Seq[(String, Int)]]
@@ -54,7 +54,7 @@ class Aggregator extends Actor {
             val currentResults = e.foldLeft(ArrayBuffer[(String, Int)]())((agg, s) => agg ++= s)
             val (coalesced, oldResults) = Coalesce.coalesceResults(currentResults.sortBy(-_._2).take(10), previousResults)
             coalesced.prettyPrint.foreach(println)
-            context.become(processPartials(partialAggregators, oldResults))
+            context become processPartials(partialAggregators, oldResults)
           }
         }
 
