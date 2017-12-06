@@ -7,8 +7,9 @@
  
 ## Solution description
 
-The solution is based on Akka and a set of three actors that
+The solution is based on Akka and a set of four actors that
 
+ * Connect to twitter's streaming api via twitter4j 
  * Parse tweets and extract hashtags
  * Accumulate partial results hashed by the hashtag's first letter 
  * Gather and print full results every 10 seconds
