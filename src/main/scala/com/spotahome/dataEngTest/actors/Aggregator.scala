@@ -1,6 +1,6 @@
 package com.spotahome.dataEngTest.actors
 
-import scala.collection.mutable
+import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -28,26 +28,24 @@ object Aggregator {
 
 class Aggregator extends Actor {
 
-  private val partialAggregators = mutable.HashSet[ActorRef]()
-
   private def liftToFutureTry[T](f: Future[T]): Future[Try[T]] =
     f.map(Success(_)).recover({ case e => Failure(e) })
 
   implicit val timeout = Timeout(200 milliseconds)
 
-  override def receive = processPartials(List())
+  override def receive = processPartials(HashSet(), List())
 
-  def processPartials(previousResults: Iterable[(String, Int)]) : Receive = {
+  def processPartials(partialAggregators: Set[ActorRef], previousResults: Iterable[(String, Int)]) : Receive = {
 
     case RegisterWithAggregator =>
-      partialAggregators += sender()
+      context.become(processPartials(partialAggregators + sender(), previousResults))
 
     case DeregisterWithAggregator =>
-      partialAggregators -= sender()
+      context.become(processPartials(partialAggregators  - sender(), previousResults))
 
     case AskForPartials => {
       val setOfFutures = for (a <- partialAggregators) yield ask(a, PartialProcessed).mapTo[Seq[(String, Int)]]
-      val futureOfSets: Future[mutable.HashSet[Try[Seq[(String, Int)]]]] = Future.sequence(setOfFutures.map(liftToFutureTry)).map(_.filter(_.isSuccess))
+      val futureOfSets = Future.sequence(setOfFutures.map(liftToFutureTry)).map(_.filter(_.isSuccess))
 
       futureOfSets
         .map(_.map(t => t.get))
@@ -56,7 +54,7 @@ class Aggregator extends Actor {
             val currentResults = e.foldLeft(ArrayBuffer[(String, Int)]())((agg, s) => agg ++= s)
             val (coalesced, oldResults) = Coalesce.coalesceResults(currentResults.sortBy(-_._2).take(10), previousResults)
             coalesced.prettyPrint.foreach(println)
-            context.become(processPartials(oldResults))
+            context.become(processPartials(partialAggregators, oldResults))
           }
         }
 
