@@ -1,12 +1,12 @@
-package com.spotahome.dataEngTest.actors
+package com.matzanas.twitterTrends.actors
 
 import akka.actor.{Actor, ActorRef, Props}
 
 import twitter4j.conf.ConfigurationBuilder
 import twitter4j.{FilterQuery, TwitterStreamFactory}
 
-import com.spotahome.dataEngTest.actors.TwitterSearcher.StartTwitterSearch
-import com.spotahome.dataEngTest.common.EnvInjector
+import com.matzanas.twitterTrends.actors.TwitterSearcher.StartTwitterSearch
+import com.matzanas.twitterTrends.common.EnvInjector
 
 object TwitterSearcher {
 

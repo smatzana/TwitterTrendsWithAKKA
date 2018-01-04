@@ -1,4 +1,4 @@
-package com.spotahome.dataEngTest.common
+package com.matzanas.twitterTrends.common
 
 object Coalesce {
 

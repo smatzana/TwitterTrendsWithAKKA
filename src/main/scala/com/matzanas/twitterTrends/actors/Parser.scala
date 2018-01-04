@@ -1,11 +1,11 @@
-package com.spotahome.dataEngTest.actors
+package com.matzanas.twitterTrends.actors
 
 import akka.actor.{Actor, ActorRef, Props}
 
 import twitter4j.Status
 
-import com.spotahome.dataEngTest.actors.Parser.ParseStatus
-import com.spotahome.dataEngTest.actors.PartialAggregator.HashTag
+import Parser.ParseStatus
+import PartialAggregator.HashTag
 
 object Parser {
   def props(partialAggregator: ActorRef) = Props(new Parser(partialAggregator))

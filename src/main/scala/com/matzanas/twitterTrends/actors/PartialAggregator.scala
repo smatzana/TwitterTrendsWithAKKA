@@ -1,10 +1,10 @@
-package com.spotahome.dataEngTest.actors
+package com.matzanas.twitterTrends.actors
 
 import akka.actor.{Actor, ActorRef, Props}
 import akka.routing.ConsistentHashingRouter.ConsistentHashMapping
 
-import com.spotahome.dataEngTest.actors.Aggregator.PartialProcessed
-import com.spotahome.dataEngTest.actors.PartialAggregator.{DeregisterWithAggregator, HashTag, RegisterWithAggregator}
+import com.matzanas.twitterTrends.actors.Aggregator.PartialProcessed
+import com.matzanas.twitterTrends.actors.PartialAggregator.{DeregisterWithAggregator, HashTag, RegisterWithAggregator}
 
 object PartialAggregator {
 

@@ -1,4 +1,4 @@
-package com.spotahome.dataEngTest.common
+package com.matzanas.twitterTrends.common
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter

@@ -1,4 +1,4 @@
-package com.spotahome.dataEngTest.actors
+package com.matzanas.twitterTrends.actors
 
 import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
@@ -11,11 +11,11 @@ import akka.actor.{Actor, ActorRef, Props}
 import akka.pattern.ask
 import akka.util.Timeout
 
-import com.spotahome.dataEngTest.TwitterTrends.AskForPartials
-import com.spotahome.dataEngTest.actors.Aggregator.PartialProcessed
-import com.spotahome.dataEngTest.actors.PartialAggregator.{DeregisterWithAggregator, RegisterWithAggregator}
-import com.spotahome.dataEngTest.common.Coalesce
-import com.spotahome.dataEngTest.common.TrendsPrettyPrint.PrettyPrint
+import com.matzanas.twitterTrends.TwitterTrends.AskForPartials
+import com.matzanas.twitterTrends.actors.Aggregator.PartialProcessed
+import PartialAggregator.{DeregisterWithAggregator, RegisterWithAggregator}
+import com.matzanas.twitterTrends.common.Coalesce
+import com.matzanas.twitterTrends.common.TrendsPrettyPrint.PrettyPrint
 
 
 object Aggregator {

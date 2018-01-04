@@ -1,8 +1,9 @@
-package com.spotahome.dataEngTest
+package com.matzanas.twitterTrends
 
 import scala.collection.mutable.ArrayBuffer
 
-import com.spotahome.dataEngTest.common._
+import com.matzanas.twitterTrends.common.Coalesce
+import com.matzanas.twitterTrends.common._
 import org.scalatest._
 
 class CoalesceTestSpec extends FlatSpec with Matchers {

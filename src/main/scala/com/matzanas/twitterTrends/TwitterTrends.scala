@@ -1,4 +1,4 @@
-package com.spotahome.dataEngTest
+package com.matzanas.twitterTrends
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -6,8 +6,9 @@ import scala.concurrent.duration._
 import akka.actor.ActorSystem
 import akka.routing._
 
-import com.spotahome.dataEngTest.actors._
-import com.spotahome.dataEngTest.common.EnvInjector
+import com.matzanas.twitterTrends.actors.{Parser, PartialAggregator}
+import com.matzanas.twitterTrends.actors._
+import com.matzanas.twitterTrends.common.EnvInjector
 
 object TwitterTrends extends App {
 
