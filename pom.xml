@@ -156,7 +156,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>com.spotahome.dataEngTest.TwitterTrends</mainClass>
+                            <mainClass>com.matzanas.twitterTrends.TwitterTrends</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

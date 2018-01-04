@@ -18,7 +18,7 @@ object TwitterTrends extends App {
        case (ev, Some(f)) => (ev, f)
      }
   )
-  val SystemName = "SpotAHome-Data-Engineering-Test"
+  val SystemName = "Twitter-Trends"
   val AskForPartials = "ask partials"
 
   val system: ActorSystem = ActorSystem(SystemName)
